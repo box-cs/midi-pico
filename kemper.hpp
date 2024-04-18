@@ -44,11 +44,11 @@ enum class MidiControlChange : uint8_t {
 };
 
 // https://learn.sparkfun.com/tutorials/midi-tutorial/all
-void send_midi_message(auto uartId, const uint8_t MS_Nybble,
-                       kemper::MidiControlChange cc, uint8_t value) {
-  const uint8_t *midi_message =
-      new uint8_t[3]{MS_Nybble, std::to_underlying(cc), value};
+void send_midi_message(auto uartId, const MidiMessage message,
+                       MidiControlChange cc, uint8_t value) {
+  const uint8_t *midi_message = new uint8_t[3]{std::to_underlying(message),
+                                               std::to_underlying(cc), value};
   uart_write_blocking(uartId, midi_message, 3);
   delete[] midi_message;
-}
+};
 } // namespace kemper

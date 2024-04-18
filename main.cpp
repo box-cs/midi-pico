@@ -50,7 +50,7 @@ void callback(uint gpio, uint32_t events) {
     switch (gpio) {
     case GPIO_BUTTON_1:
       printf("MIDI! \n");
-      send_midi_message(UART_ID, 0xB0,
+      send_midi_message(UART_ID, kemper::MidiMessage::CONTROL_CHANGE,
                         kemper::MidiControlChange::PERFORMANCE_PAGEUP, 0);
       break;
     }
