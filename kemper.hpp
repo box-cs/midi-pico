@@ -60,7 +60,7 @@ void send_midi_message(auto uartId, const MidiMessage message,
   delete[] midi_message;
 };
 
-// KEMPER PROFILER MIDI Parameter Documentation -- NNRP Definition
+// KEMPER PROFILER MIDI Parameter Documentation -- NRPN Definition
 // Kemper catalogues modules in decimal
 // ie: Setting “Reverb Mix” value to 8192 in module REV (NRPN #6169)
 // MSB(“address page”) is 61($3D) and LSB(“address number”) is 69($45).
@@ -70,7 +70,7 @@ void send_midi_message(auto uartId, const MidiMessage message,
 //   {0xB0, 0x06, (8192 >> 7) & 7F },
 //   {0xB0, 0x26, (8192 & 7F )}
 // }
-void send_nnrp_message(auto uartId, uint16_t nrpn, uint16_t value) {
+void send_nrpn_message(auto uartId, uint16_t nrpn, uint16_t value) {
   // value max is 8192 = 0x2000
   send_midi_message(uartId, MidiMessage::CONTROL_CHANGE,
                     MidiControlChange::ADDRESS_PAGE, nrpn / 100);
