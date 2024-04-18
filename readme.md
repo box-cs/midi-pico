@@ -1,4 +1,4 @@
-## Dependencies:
+## Dependencies
 
 - pico-sdk folder with pico sdk contents
 - picotool
@@ -40,3 +40,7 @@ sudo reboot
 ```bash
 ./serial.sh
 ```
+
+## Schematic
+
+![](schematic.png)
