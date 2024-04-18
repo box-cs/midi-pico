@@ -2,8 +2,11 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <vector>
 
-namespace kemper {
+using std::vector;
+
+namespace Kemper {
 enum class MidiMessage : uint8_t {
   NOTE_OFF = 0x80,
   NOTE_ON = 0x90,
@@ -41,6 +44,11 @@ enum class MidiControlChange : uint8_t {
   PERFORMANCE_SELECT_SLOT_4 = 53,      // 1
   PERFORMANCE_SELECT_SLOT_5 = 54,      // 1
   MORPH = 80,                          // 1 | 0
+  // NRPN
+  DATA_ENTRY_MSB = 6,  // 0-127
+  DATA_ENTRY_LSB = 38, // 0-127
+  ADDRESS_NUMBER = 98, // 0-127
+  ADDRESS_PAGE = 99,   // 0-127
 };
 
 // https://learn.sparkfun.com/tutorials/midi-tutorial/all
@@ -51,4 +59,26 @@ void send_midi_message(auto uartId, const MidiMessage message,
   uart_write_blocking(uartId, midi_message, 3);
   delete[] midi_message;
 };
-} // namespace kemper
+
+// KEMPER PROFILER MIDI Parameter Documentation -- NNRP Definition
+// Kemper catalogues modules in decimal
+// ie: Setting “Reverb Mix” value to 8192 in module REV (NRPN #6169)
+// MSB(“address page”) is 61($3D) and LSB(“address number”) is 69($45).
+// auto message = {
+//   {0xB0, 0x63, 0x3D},
+//   {0xB0, 0x62, 0x45},
+//   {0xB0, 0x06, (8192 >> 7) & 7F },
+//   {0xB0, 0x26, (8192 & 7F )}
+// }
+void send_nnrp_message(auto uartId, uint16_t nrpn, uint16_t value) {
+  // value max is 8192 = 0x2000
+  send_midi_message(uartId, MidiMessage::CONTROL_CHANGE,
+                    MidiControlChange::ADDRESS_PAGE, nrpn / 100);
+  send_midi_message(uartId, MidiMessage::CONTROL_CHANGE,
+                    MidiControlChange::ADDRESS_NUMBER, nrpn % 100);
+  send_midi_message(uartId, MidiMessage::CONTROL_CHANGE,
+                    MidiControlChange::DATA_ENTRY_MSB, (value >> 7) & 0x7F);
+  send_midi_message(uartId, MidiMessage::CONTROL_CHANGE,
+                    MidiControlChange::DATA_ENTRY_LSB, value & 0x7F);
+};
+} // namespace Kemper
